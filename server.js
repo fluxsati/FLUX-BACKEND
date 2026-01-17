@@ -1,0 +1,48 @@
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const http = require('http');
+const connectDB = require('./config/db');
+const { socketHandler } = require('./socket/socketHandler');
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+
+// 1. Load Environment & Connect Database
+dotenv.config();
+connectDB();
+
+const app = express();
+const server = http.createServer(app);
+
+// 2. Global Middlewares
+app.use(cors());
+app.use(express.json()); 
+
+// 3. API Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
+app.use('/api/contact', require('./routes/contactRoutes'));
+app.use('/api/projects', require('./routes/projectRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
+
+// Root Route
+app.get('/', (req, res) => {
+    res.send('Flux-Web API is running with Shop & Socket systems active...');
+});
+
+// 4. Socket.io Initialization
+// MODIFIED: Capture the 'io' instance and attach it to the 'app'
+const io = socketHandler(server); 
+app.set('socketio', io); 
+
+// 5. Error Handling Middleware (MUST BE LAST)
+app.use(notFound);
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
+
+// 6. Start Server
+server.listen(PORT, () => {
+    console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+});
