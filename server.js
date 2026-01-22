@@ -14,7 +14,18 @@ const app = express();
 const server = http.createServer(app);
 
 // 2. Global Middlewares
-app.use(cors());
+// UPDATED CORS: Allowing both your Netlify and Vercel domains
+app.use(cors({
+    origin: [
+        'https://clubflux.netlify.app', 
+        'https://clubflux.vercel.app', 
+        'http://localhost:5173', // Vite default
+        'http://localhost:3000'  // React default
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+}));
+
 app.use(express.json()); 
 
 // 3. API Routes
@@ -32,7 +43,7 @@ app.get('/', (req, res) => {
 });
 
 // 4. Socket.io Initialization
-// MODIFIED: Capture the 'io' instance and attach it to the 'app'
+// IMPORTANT: Ensure your socketHandler.js also uses these origins!
 const io = socketHandler(server); 
 app.set('socketio', io); 
 
