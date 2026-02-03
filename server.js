@@ -19,6 +19,7 @@ app.use(cors({
     origin: [
         'https://clubflux.netlify.app', 
         'https://clubflux.vercel.app', 
+         'https://clubflux.in',
         'http://localhost:5173', // Vite default
         'http://localhost:3000'  // React default
     ],
