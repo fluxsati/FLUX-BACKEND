@@ -1,6 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const cors = require('cors');
+const cors = require('cors'); // Imported only once
 const http = require('http');
 const connectDB = require('./config/db');
 const { socketHandler } = require('./socket/socketHandler');
@@ -14,28 +14,44 @@ const app = express();
 const server = http.createServer(app);
 
 // 2. Global Middlewares
-// UPDATED CORS: Allowing both your Netlify and Vercel domains
+
+// Define your allowed origins in one place
+const allowedOrigins = [
+    // Production Custom Domains
+    'https://www.clubflux.in',
+    'https://clubflux.in',
+    'http://www.clubflux.in',
+    'http://clubflux.in',
+    
+    // Deployment Platforms
+    'https://clubflux.netlify.app',
+    'https://clubflux.vercel.app',
+    
+    // Local Development
+    'http://localhost:5173',
+    'http://localhost:3000'
+];
+
 app.use(cors({
-    origin: [
-        'https://clubflux.netlify.app', 
-        'https://clubflux.vercel.app', 
-        'https://www.clubflux.in/',
-       'https://www.clubflux.in',
-       'https://www.clubflux.in', // No trailing slash
-      'https://clubflux.in',     // No trailing slash
-       'www.clubflux.in/',
-        'www.clubflux.in',
-         'https://clubflux.in',
-          'https://clubflux.in/',
-          'https://clubflux.in/admin',
-        'http://localhost:5173', // Vite default
-        'http://localhost:3000'  // React default
-    ],
+    origin: function (origin, callback) {
+        // 1. Allow internal requests (mobile apps, Postman, server-to-server)
+        if (!origin) return callback(null, true);
+
+        // 2. Check if the incoming origin matches our allowed list
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            // Log the blocked origin for debugging in Vercel logs
+            console.error(`CORS blocked for origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-app.use(express.json()); 
+app.use(express.json());
 
 // 3. API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -52,7 +68,8 @@ app.get('/', (req, res) => {
 });
 
 // 4. Socket.io Initialization
-// IMPORTANT: Ensure your socketHandler.js also uses these origins!
+// Note: You must ensure `socketHandler` applies these same CORS origins 
+// inside its own `new Server(server, { cors: ... })` config.
 const io = socketHandler(server); 
 app.set('socketio', io); 
 
