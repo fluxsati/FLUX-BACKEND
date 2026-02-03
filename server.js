@@ -21,6 +21,7 @@ app.use(cors({
         'https://clubflux.vercel.app', 
         'https://www.clubflux.in/',
           'www.clubflux.in/',
+           'www.clubflux.in',
          'https://clubflux.in',
           'https://clubflux.in/',
         'http://localhost:5173', // Vite default
