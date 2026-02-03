@@ -27,6 +27,7 @@ app.use(cors({
         'www.clubflux.in',
          'https://clubflux.in',
           'https://clubflux.in/',
+          'https://clubflux.in/admin',
         'http://localhost:5173', // Vite default
         'http://localhost:3000'  // React default
     ],
