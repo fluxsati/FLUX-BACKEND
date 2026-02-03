@@ -20,6 +20,8 @@ app.use(cors({
         'https://clubflux.netlify.app', 
         'https://clubflux.vercel.app', 
         'https://www.clubflux.in/',
+       'https://www.clubflux.in',
+
           'www.clubflux.in/',
            'www.clubflux.in',
          'https://clubflux.in',
