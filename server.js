@@ -15,26 +15,32 @@ const server = http.createServer(app);
 
 // 2. Global Middlewares
 // UPDATED CORS: Allowing both your Netlify and Vercel domains
+const allowedOrigins = [
+    'https://clubflux.netlify.app',
+    'https://clubflux.vercel.app',
+    'https://www.clubflux.in',
+    'https://clubflux.in',
+    'http://localhost:5173',
+    'http://localhost:3000'
+];
+
 app.use(cors({
-    origin: [
-        'https://clubflux.netlify.app', 
-        'https://clubflux.vercel.app', 
-        'https://www.clubflux.in/',
-       'https://www.clubflux.in',
-       'https://www.clubflux.in', // No trailing slash
-      'https://clubflux.in',     // No trailing slash
-'www.clubflux.in/',
- 'www.clubflux.in',
-         'https://clubflux.in',
-          'https://clubflux.in/',
-        'http://localhost:5173', // Vite default
-        'http://localhost:3000'  // React default
-    ],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json()); 
+app.use(express.json());
 
 // 3. API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
