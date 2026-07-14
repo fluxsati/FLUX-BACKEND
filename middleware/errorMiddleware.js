@@ -14,6 +14,18 @@ const errorHandler = (err, req, res, next) => {
     err.message = 'Resource not found';
   }
 
+  // Handle Mongo duplicate key errors (e.g. race-condition double submits)
+  if (err.code === 11000) {
+    statusCode = 409;
+    err.message = 'A record with these details already exists.';
+  }
+
+  // Handle Mongoose schema validation errors
+  if (err.name === 'ValidationError') {
+    statusCode = 400;
+    err.message = Object.values(err.errors).map((e) => e.message).join(', ');
+  }
+
   res.status(statusCode).json({
     message: err.message || 'Server Error',
     stack: process.env.NODE_ENV === 'production' ? null : err.stack,

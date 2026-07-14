@@ -2,10 +2,34 @@ const { Server } = require('socket.io');
 const Message = require('../models/Message');
 
 const socketHandler = (server) => {
+  // Define allowed origins exactly as in your main server.js
+  const allowedOrigins = [
+    'https://www.clubflux.in',
+    'https://clubflux.in',
+    'http://www.clubflux.in',
+    'http://clubflux.in',
+    'https://clubflux.netlify.app',
+    'https://clubflux.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ];
+
   const io = new Server(server, {
     cors: {
-      origin: "*", 
-      methods: ["GET", "POST"]
+      // Dynamically check origin to allow credentials
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or Postman)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          console.log("Socket CORS Blocked:", origin);
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      methods: ["GET", "POST"],
+      credentials: true // Crucial for session cookies/auth headers
     }
   });
 
@@ -73,6 +97,8 @@ const socketHandler = (server) => {
       console.log('User disconnected', socket.id);
     });
   });
+
+  return io; // Helpful if you need to access 'io' in other files later
 };
 
 module.exports = { socketHandler };
