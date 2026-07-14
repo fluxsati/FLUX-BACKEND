@@ -1,6 +1,7 @@
 
 const mongoose = require("mongoose");
 
+<<<<<<< HEAD
 // A single team member (used for the Round 0 team roster)
 const memberSchema = new mongoose.Schema(
     {
@@ -99,6 +100,38 @@ const fluxWaveRegistrationSchema = new mongoose.Schema(
 
 // Prevent the same email from submitting the same round twice
 fluxWaveRegistrationSchema.index({ email: 1, round: 1 }, { unique: true });
+=======
+const fluxWaveRegistrationSchema = new mongoose.Schema(
+{
+    teamName: {
+        type: String,
+        required: true,
+    },
+    leaderName: {
+        type: String,
+        required: true,
+    },
+    contactNumber: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
+    enrollment: {
+        type: String,
+        required: true,
+    },
+    round: {
+        type: Number,
+        required: true,
+    },
+},
+{
+    timestamps: true,
+});
+>>>>>>> 850b892fb7a34ee08aff39cebfc7107d0314a7a9
 
 module.exports = mongoose.model(
     "FluxWaveRegistration",
