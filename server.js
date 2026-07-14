@@ -37,13 +37,8 @@ app.use(cors({
         // 1. Allow internal requests (mobile apps, Postman, server-to-server)
         if (!origin) return callback(null, true);
 
-<<<<<<< HEAD
         // 2. Check if the incoming origin matches our allowed list or deployment platforms
         if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app') || origin.endsWith('.netlify.app')) {
-=======
-        // 2. Check if the incoming origin matches our allowed list
-        if (allowedOrigins.includes(origin)) {
->>>>>>> 850b892fb7a34ee08aff39cebfc7107d0314a7a9
             callback(null, true);
         } else {
             // Log the blocked origin for debugging in Vercel logs
