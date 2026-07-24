@@ -5,6 +5,8 @@ const http = require('http');
 const connectDB = require('./config/db');
 const { socketHandler } = require('./socket/socketHandler');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+// At the top with other require() statements:
+const faqRoutes = require('./routes/faqRoutes');
 
 // 1. Load Environment & Connect Database
 dotenv.config();
@@ -63,6 +65,8 @@ app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/projects', require('./routes/projectRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/fluxwave', require('./routes/fluxWaveRoutes'));
+// With other app.use() route registrations:
+app.use('/api/faq', faqRoutes);
 
 // Root Route
 app.get('/', (req, res) => {
