@@ -1,11 +1,24 @@
 const express = require('express');
 const router = express.Router();
-// Import the logic from your controller
-const { createProject, getProjects } = require('../controllers/projectController');
+const { 
+  createProject, 
+  getProjects, 
+  approveProject, 
+  deleteProject 
+} = require('../controllers/projectController');
+const { protect, admin } = require('../middleware/authMiddleware');
 
-// Clean approach using router.route()
 router.route('/')
-  .get(getProjects)     // Fetches all projects for your Admin Panel
-  .post(createProject);  // Handles new project submissions from the form
+  .get(getProjects)
+  .post(createProject);
+
+router.route('/:id')
+  .delete(protect, admin, deleteProject);
+
+router.route('/:id/approve')
+  .put(protect, admin, approveProject);
+
+router.route('/:id/confirm')
+  .put(protect, admin, approveProject);
 
 module.exports = router;

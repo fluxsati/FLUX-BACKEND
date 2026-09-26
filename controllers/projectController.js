@@ -3,7 +3,7 @@ const Project = require('../models/Project');
 
 // @desc    Create a new project
 // @route   POST /api/projects
-const createProject = asyncHandler(async (req, res, next) => { // Signature includes next
+const createProject = asyncHandler(async (req, res) => {
   const { title, description, techStack, githubLink, liveLink, submittedBy, email } = req.body;
 
   const project = new Project({
@@ -13,25 +13,67 @@ const createProject = asyncHandler(async (req, res, next) => { // Signature incl
     description,
     techStack,
     githubLink,
-    liveLink
+    liveLink,
+    status: 'pending',
+    isApproved: false
   });
 
-  const createdProject = await project.save(); // Triggers save middleware
+  const createdProject = await project.save();
   res.status(201).json(createdProject);
 });
 
-// @desc    Get all projects
+// @desc    Get all projects (or filtered by approved)
 // @route   GET /api/projects
-const getProjects = asyncHandler(async (req, res, next) => { // Signature includes next
-  // Search for all projects and sort by newest first
-  const projects = await Project.find({}).sort({ createdAt: -1 }); 
-  
-  if (!projects) {
-    res.status(404);
-    throw new Error('No projects found');
+const getProjects = asyncHandler(async (req, res) => {
+  const { approved, status } = req.query;
+  let filter = {};
+
+  if (approved === 'true' || status === 'approved') {
+    filter = {
+      $or: [
+        { isApproved: true },
+        { status: 'approved' }
+      ]
+    };
   }
 
+  const projects = await Project.find(filter).sort({ createdAt: -1 });
   res.json(projects);
 });
 
-module.exports = { createProject, getProjects };
+// @desc    Approve a project (Admin)
+// @route   PUT /api/projects/:id/approve
+const approveProject = asyncHandler(async (req, res) => {
+  const project = await Project.findById(req.params.id);
+
+  if (project) {
+    project.isApproved = true;
+    project.status = 'approved';
+    const updated = await project.save();
+    res.json(updated);
+  } else {
+    res.status(404);
+    throw new Error('Project not found');
+  }
+});
+
+// @desc    Delete a project (Admin)
+// @route   DELETE /api/projects/:id
+const deleteProject = asyncHandler(async (req, res) => {
+  const project = await Project.findById(req.params.id);
+
+  if (project) {
+    await project.deleteOne();
+    res.json({ message: 'Project removed successfully' });
+  } else {
+    res.status(404);
+    throw new Error('Project not found');
+  }
+});
+
+module.exports = { 
+  createProject, 
+  getProjects, 
+  approveProject, 
+  deleteProject 
+};
